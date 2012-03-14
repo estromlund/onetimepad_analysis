@@ -156,7 +156,7 @@ def set_key_val(ct_arr,ct_num, key, index, pt_value) #shortcut to manually set k
   key[index]=xor_chars(pt_value,ct_arr[ct_num-1][index])
 end
 
-def main_run(ct_strs, ct_tar, debug=false)
+def main_key_build_run(ct_strs, ct_tar, debug=false)
   ct_tar_arr=hex_str_to_char_arr(ct_tar)
 
 #convert ct_strs to array of arrays containing each hex code (2 digits) in an array
@@ -198,76 +198,31 @@ def main_run(ct_strs, ct_tar, debug=false)
 #this is done by taking the array showing where spaces are in each plaintext, and where each space is, xor that ct (hex) value with
 #the value for space (hex 20), and that is the key value for that character position, i.e. where m1=s (m1^k^s=s^k^s=k)
   key=build_key_from_spaces(spaces_arrays, ct_array)
+  return key
+end
 
-#then, after viewing output, we can visually review, and manually add values to the key to aid in decrytion
-#these values were what I came up with after viewing output, switching to debug to view the element#, then filling in the appropriate value
-  set_key_val(ct_array,1, key, 41, "c")
-  set_key_val(ct_array,1, key, 42, "o")
-  set_key_val(ct_array,7, key, 63, "e")
-  set_key_val(ct_array,7, key, 64, "n")
-  set_key_val(ct_array,8, key, 103, "e")
-  set_key_val(ct_array,8, key, 104, "n")
-  set_key_val(ct_array,8, key, 109, "n")
-  set_key_val(ct_array,8, key, 110, "m")
-  set_key_val(ct_array,8, key, 111, "e")
-  set_key_val(ct_array,8, key, 113, "t")
-  set_key_val(ct_array,5, key, 2, "u")
-  set_key_val(ct_array,5, key, 101, "c")
-  set_key_val(ct_array,5, key,102, "o")
-  set_key_val(ct_array,2, key, 3, "e")
-  set_key_val(ct_array,2, key, 58,"c")
-  set_key_val(ct_array,2, key, 98, "u")
-  set_key_val(ct_array,2, key, 74, "c")
-  set_key_val(ct_array,2, key, 71, "o")
-  set_key_val(ct_array,2, key, 78, "t")
-  set_key_val(ct_array,2, key, 69, "e")
-  set_key_val(ct_array,2, key, 17, "b")
-  set_key_val(ct_array,2, key, 25, "y")
-  set_key_val(ct_array,2, key, 99,"l")
-  set_key_val(ct_array,2, key, 100,"e")
-  set_key_val(ct_array,10, key, 50,"t")
-  set_key_val(ct_array,10, key, 46,"c")
-  set_key_val(ct_array,9, key, 44,"a")
-  set_key_val(ct_array,9, key, 51,"h")
-  set_key_val(ct_array,6, key, 114,"l")
-  set_key_val(ct_array,3, key, 39,"c")
-  set_key_val(ct_array,3, key, 40,"r")
-  set_key_val(ct_array,6, key, 115,"l")
-  set_key_val([ct_tar_arr],0,key,5,"e")
-  set_key_val([ct_tar_arr],0,key,6,"c")
-  set_key_val([ct_tar_arr],0,key,7,"r")
-  set_key_val([ct_tar_arr],0,key,9,"t")
-  set_key_val([ct_tar_arr],0,key,10," ")
-  set_key_val([ct_tar_arr],0,key,13,"s")
-  set_key_val([ct_tar_arr],0,key,14,"s")
-  set_key_val([ct_tar_arr],0,key,18," ")
-  set_key_val([ct_tar_arr],0,key,19,"i")
-  set_key_val([ct_tar_arr],0,key,20,"s")
-  set_key_val([ct_tar_arr],0,key,36,"s")
-  set_key_val([ct_tar_arr],0,key,38,"r")
-  set_key_val(ct_array,1,key,33,"q")
-  set_key_val(ct_array,1,key,34,"u")
-  set_key_val(ct_array,1,key,35,"a")
-  set_key_val(ct_array,1,key,22,"e")
-  set_key_val(ct_array,1,key,23,"r")
-
-
+def print_decoded_cts(key, ct_array, ct_tar_arr, debug=false)
   puts "key = #{key}"
   #try and decode target
   decoded_tar = decode(ct_tar_arr, key)
   puts "targ: #{decoded_tar}"
-  decode_cts(ct_array,key,true)
+  decode_cts(ct_array,key,debug)
 end
 
 if __FILE__ == $0  #run this if executed from command line
-    #load cts in file, each separated by blank line
+    #load cts in file, each separated by blank line, with target as last line (actually doesn't matter bc all will be decrypted)
+    
     #do analysis, etc. up to and including building the key
+    key=main_key_build_run(ct_strs, ct_tar)
     #then we enter loop where once can 
+    
     # 1) toggle between debug and not
     # 2) add to the key using regex subs and maybe also by ct number
     # when those are added, or debug is toggled, everything is reprinted
+    ct_tar_arr=hex_str_to_char_arr(ct_tar)
+    ct_arr=combine_arrs(ct_strs)  
+    print_decoded_cts(key, ct_arr,ct_tar_arr)
     # there is also and undo function
-    main_run(ct_strs, ct_tar)
 end
 
 #Best computed guess before filling in blanks mentally:
