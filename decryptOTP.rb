@@ -260,6 +260,13 @@ def main_run(ct_strs, ct_tar, debug=false)
 end
 
 if __FILE__ == $0  #run this if executed from command line
+    #load cts in file, each separated by blank line
+    #do analysis, etc. up to and including building the key
+    #then we enter loop where once can 
+    # 1) toggle between debug and not
+    # 2) add to the key using regex subs and maybe also by ct number
+    # when those are added, or debug is toggled, everything is reprinted
+    # there is also and undo function
     main_run(ct_strs, ct_tar)
 end
 
