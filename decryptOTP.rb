@@ -140,7 +140,7 @@ def decode_cts(cts_array,key,debug)  #use decode method to do whole set of ciphe
       print "ct #{i}: " 
       arr.length.times.each do |num|
         if num < 10 
-          print "#{num} |" #add a space to preserve alignment with double digit stuff
+          print "#{num}  |" #add a space to preserve alignment with double digit stuff
         else
           print "#{num}|"
         end
@@ -211,24 +211,42 @@ def pop_array(file)
   arr
 end
 
+def process_inp(input, ct_arr, ct_tar_arr, key) #matches input (i.e. "1, cipher") to pt text in ct1, and fills in blanks
+  ct_arr=[ct_tar_arr]+ct_arr
+
+  ct_num, pos, txtval = input.split(/,[ ]*/)
+  if ct_num.nil? || pos.nil? || txtval.nil?
+    puts "improper input; should be ct_num,position,value"
+  else
+    if ct_num == ("tar" || "t")
+      ct_num=0
+    else
+      ct_num=ct_num.to_i+1
+    end
+    set_key_val(ct_arr,ct_num, key, (pos.to_i-1), txtval)
+  end
+  
+end
+
+
 if __FILE__ == $0  #run this if executed from command line
     if ARGV.empty?
       puts %Q{\nProper usage is:\n\n '#{$0} cts_file'\n\nwhere cts_file is a file containing all ciphertexts, separated by a blank line}
       Process.exit
     end
+    
+    #load cts in file, each separated by blank line, with target as last line (actually doesn't matter bc all cts will be decrypted)
     ct_file = ARGV[0]
     ct_strs=File.open(ct_file).read.split("\n").reject { |el| el==""}
     
     #convert ct_strs to array of arrays containing each hex code (2 digits) in an array
-    ct_array=combine_arrs(ct_strs)  
-    ct_tar_arr=hex_str_to_char_arr(ct_tar)
-   # puts ARGV[0]
-    #load cts in file, each separated by blank line, with target as last line (actually doesn't matter bc all will be decrypted)
-    
+    ct_array=combine_arrs(ct_strs)  # i.e. ["asdflk","asdkfjsaldj"]->[["as","df","lk"],["as",....]]
+    ct_tar_arr=hex_str_to_char_arr(ct_tar) # same, but only one array 
+
     #do analysis, etc. up to and including building the key
     key=main_key_build_run(ct_array, ct_tar_arr)
     #then we enter loop where once can 
-    
+
     # 1) toggle between debug and not
     # 2) add to the key using regex subs and maybe also by ct number
     # when those are added, or debug is toggled, everything is reprinted
@@ -236,7 +254,29 @@ if __FILE__ == $0  #run this if executed from command line
     ct_arr=combine_arrs(ct_strs) 
 
     print_decoded_cts(key, ct_arr,ct_tar_arr)
-    # there is also and undo function
+    togDebug=false
+    
+    while true
+      inp = $stdin.gets.chomp
+      case inp
+        when "D"
+          if togDebug
+            print_decoded_cts(key,ct_arr,ct_tar_arr,false)
+            togDebug=false
+          else
+            print_decoded_cts(key,ct_arr,ct_tar_arr,true)
+            togDebug=true
+          end
+        when "Q"
+          Process.exit
+        else
+          process_inp(inp, ct_arr, ct_tar_arr,key)
+          print_decoded_cts(key,ct_arr,ct_tar_arr)
+      end
+    end
+
+
+      # there is also and undo function
 end
 
 #Best computed guess before filling in blanks mentally:
