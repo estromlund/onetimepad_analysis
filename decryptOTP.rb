@@ -32,6 +32,7 @@ ct_10="466d06ece998b7a2fb1d464fed2ced7641ddaa3cc31c9941cf110abbf409ed39598005b33
 ct_tar="32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904"
  
 #ct_strs=[ct_1,ct_2,ct_3,ct_4,ct_5,ct_6,ct_7,ct_8,ct_9,ct_10]
+$togDebug=false
 
 def hex_str_to_char_arr(str)
   temp_arr=[]
@@ -117,10 +118,15 @@ end
 def decode(ct, key, debug=false) #given ciphertext array and key array, output plaintext as ascii string
   pt=[]
   ct.each_with_index do |el, ind|
+  if ind>99
+    sp="  "
+  else
+    sp=" "
+  end
     if !key[ind].nil?
-      pt << (el.hex ^ key[ind].hex).chr + " "
+      pt << (el.hex ^ key[ind].hex).chr + sp
     else
-      pt << ". "
+      pt << "."+sp
     end
   end
   if debug
@@ -140,7 +146,7 @@ def decode_cts(cts_array,key,debug)  #use decode method to do whole set of ciphe
       print "ct #{i}: " 
       arr.length.times.each do |num|
         if num < 10 
-          print "#{num}  |" #add a space to preserve alignment with double digit stuff
+          print "#{num} |" #add a space to preserve alignment with double digit stuff
         else
           print "#{num}|"
         end
@@ -152,8 +158,16 @@ def decode_cts(cts_array,key,debug)  #use decode method to do whole set of ciphe
   end
 end
 
-def set_key_val(ct_arr,ct_num, key, index, pt_value) #shortcut to manually set key values
-  key[index]=xor_chars(pt_value,ct_arr[ct_num-1][index])
+def set_key_val(ct_arr,ct_num, key, index, pt_value) #set specific key values
+  if pt_value.length ==1
+    key[index]=xor_chars(pt_value,ct_arr[ct_num-1][index])
+  else #add a few letters in a row from a given starting point
+    n=0
+    pt_value.chars.each do |ltr|
+      key[index+n]=xor_chars(ltr,ct_arr[ct_num-1][index+n])
+      n=n+1
+    end
+  end
 end
 
 def main_key_build_run(ct_array, ct_tar_arr, debug=false)
@@ -253,25 +267,25 @@ if __FILE__ == $0  #run this if executed from command line
    
     ct_arr=combine_arrs(ct_strs) 
 
-    print_decoded_cts(key, ct_arr,ct_tar_arr)
+    print_decoded_cts(key, ct_arr,ct_tar_arr,$togDebug)
     togDebug=false
     
     while true
       inp = $stdin.gets.chomp
       case inp
         when "D"
-          if togDebug
-            print_decoded_cts(key,ct_arr,ct_tar_arr,false)
-            togDebug=false
+          if $togDebug
+            $togDebug=false
+            print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
           else
-            print_decoded_cts(key,ct_arr,ct_tar_arr,true)
-            togDebug=true
+            $togDebug=true
+            print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
           end
         when "Q"
           Process.exit
         else
           process_inp(inp, ct_arr, ct_tar_arr,key)
-          print_decoded_cts(key,ct_arr,ct_tar_arr)
+          print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
       end
     end
 
