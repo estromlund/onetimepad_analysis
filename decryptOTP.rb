@@ -59,8 +59,7 @@ def xor_array_els_as_hex(a,b) #input two arrays each with hex characters as elem
   return xoredarr
 end
 
-
-
+#Functions for analysis of ciphertexts
 def find_shifted_case(orig,final) #input arrays of same length and with ascii characters
   shifted_case=Array.new(orig.length,0)
   orig.each_with_index do |el, i|
@@ -141,7 +140,7 @@ def set_key_val(ct_arr,ct_num, key, index, pt_value) #set specific key values
   end
 end
 
-def main_key_build_run(ct_array, ct_tar_arr, debug=false)
+def main_key_build_run(ct_array, ct_tar_arr, debug=$togDebug)
   spaces_arrays=[]
 
 #for one given ct......
@@ -196,7 +195,7 @@ def pop_array(file)
   arr
 end
 
-def process_inp(input, ct_arr, ct_tar_arr, key) #matches input (i.e. "1, cipher") to pt text in ct1, and fills in blanks
+def process_inp(input, ct_arr, ct_tar_arr, key) #matches input (i.e. "1,5, cipher") to fill text "cipher" starting at position 5 on ct# 1
   ct_arr=[ct_tar_arr]+ct_arr
 
   ct_num, pos, txtval = input.split(/,[ ]*/)
@@ -240,26 +239,21 @@ if __FILE__ == $0  #run this if executed from command line
     # when those are added, or debug is toggled, everything is reprinted
    
     ct_arr=combine_arrs(ct_strs) 
-
-    print_decoded_cts(key, ct_arr,ct_tar_arr,$togDebug)
-    togDebug=false
     
     while true
+      print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
       inp = $stdin.gets.chomp
       case inp
         when "D"
           if $togDebug
             $togDebug=false
-            print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
           else
             $togDebug=true
-            print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
           end
         when "Q"
           Process.exit
         else
           process_inp(inp, ct_arr, ct_tar_arr,key)
-          print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
       end
     end
 
