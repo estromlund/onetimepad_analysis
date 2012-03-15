@@ -216,6 +216,8 @@ end
 if __FILE__ == $0  #run this if executed from command line
     if ARGV.empty?
       puts %Q{\nProper usage is:\n\n '#{$0} cts_file'\n\nwhere cts_file is a file containing all ciphertexts, separated by a blank line}
+      puts %Q{\nFrom there, the ciphertexts are analyzed and you can fill in the remaining blanks using the super fancy method of:\n\n txt_num,pos,val\n\n}
+      puts %Q{for example: 1,1,X to change the first character in the first text to X -- all changes are then replicated across other texts}
       Process.exit
     end
     
@@ -232,28 +234,31 @@ if __FILE__ == $0  #run this if executed from command line
 
     #do analysis, etc. up to and including building the key
     key=main_key_build_run(ct_array, ct_tar_arr)
-    #then we enter loop where once can 
-
-    # 1) toggle between debug and not
-    # 2) add to the key using regex subs and maybe also by ct number
-    # when those are added, or debug is toggled, everything is reprinted
-   
     ct_arr=combine_arrs(ct_strs) 
     
+   #then we enter loop where once can: 
     while true
       print_decoded_cts(key,ct_arr,ct_tar_arr,$togDebug)
       inp = $stdin.gets.chomp
       case inp
+     
+    # 1) toggle between debug and not
         when "D"
           if $togDebug
             $togDebug=false
           else
             $togDebug=true
           end
+    # 2) quit      
         when "Q"
           Process.exit
         else
-          process_inp(inp, ct_arr, ct_tar_arr,key)
+          begin
+    # 3) add our own observations to help build the key 
+            process_inp(inp, ct_arr, ct_tar_arr,key)
+          rescue => msg
+          puts "Something went wrong: #{msg}"
+        end
       end
     end
 
