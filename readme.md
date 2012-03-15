@@ -8,10 +8,7 @@ You run the program with:
 
 ```bash
 ruby decryptOTP.rb ct_file
-<<<<<<< HEAD
 ```
-=======
->>>>>>> 5ee0c8df8ce6fbd7104b2f4fb3c98a948ae191ea
 
 where ct_file is the file containing the encrypted texts, with a blank line separating each
 
@@ -19,8 +16,9 @@ where ct_file is the file containing the encrypted texts, with a blank line sepa
 
 For any blanks you wish to fill in, just type:
 
-'''bash
+```bash
 ctext_num,position,value
+```
 
 i.e.
 
@@ -28,16 +26,19 @@ if you see, in the first ciphertext
 
 ```bash
 T . .  c a t  a n d  t h e  d o g . .
+```
 
 you could type
 
 ```bash
 1,2,he
+```
 
 to complete
 
- ```bash
+```bash
 T h e  c a t  a n d  t h e  d o g . .
+```
 
 
 ### Other stuff
