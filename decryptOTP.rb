@@ -63,8 +63,8 @@ end
 def find_shifted_case(orig,final) #input arrays of same length and with ascii characters
   shifted_case=Array.new(orig.length,0)
   orig.each_with_index do |el, i|
-    el=el.hex.chr
-    fin=final[i].hex.chr
+    el=hex_to_asc(el)
+    fin=hex_to_asc(final[i])
     if (el == fin.downcase) || (fin == el.downcase) #if original element matches upper or lowercase of final element in same position
       shifted_case[i]=1                             #mark as shift in case
     end
@@ -88,7 +88,7 @@ end
 def decode(ct, key, debug=false) #given ciphertext array and key array, output plaintext as ascii string
   pt=[]
   ct.each_with_index do |el, ind|
-  if ind>99
+  if ind>98
     sp="  "
   else
     sp=" "
@@ -114,7 +114,7 @@ def decode_cts(cts_array,key,debug)  #use decode method to do whole set of ciphe
       j=0
       print "\n"
       print "ct #{i}: " 
-      arr.length.times.each do |num|
+      arr.length.times.reject {|el| el==0}.each do |num|
         if num < 10 
           print "#{num} |" #add a space to preserve alignment with double digit stuff
         else
